@@ -22,13 +22,23 @@ async def get_async_session_test():
 async def auth_any():
     return await get_user_id_by_username('user')
 
-def authenticated_user(app):
+async def auth_admin():
+    return await get_user_id_by_username('admin')
+
+def authenticated_user(app, user_type=None):
+    if not user_type:
+        auth_level = auth_required.auth_required
+        auth_dependency = auth_any
+    elif user_type == 'admin':
+        auth_level = auth_required.admin_auth_required
+        auth_dependency = auth_admin
+
     def decorator(test_func):
         @wraps(test_func)
         async def wrapper(*args, **kwargs):
-            app.dependency_overrides[auth_required.auth_required] = auth_any
+            app.dependency_overrides[auth_level] = auth_dependency
             await test_func(*args, **kwargs)
-            del app.dependency_overrides[auth_required.auth_required]
+            del app.dependency_overrides[auth_level]
         return wrapper
     return decorator
 
