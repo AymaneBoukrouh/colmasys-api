@@ -42,16 +42,20 @@ class User(Model):
 
     @staticmethod
     def from_model(user: UserModel):
-        return User(
-            firstname = user.firstname,
-            lastname = user.lastname,
-            username = user.username,
-            email = user.email,
-            password = auth.hash_password(user.password),
-            birthdate = datetime.strptime(user.birthdate, '%d/%m/%Y'),
-            gender = user.gender,
-            user_type = user.user_type
-        )
+        data = user.dict()
+        data['password'] = auth.hash_password(user.password)
+        data['birthdate'] = datetime.strptime(user.birthdate, '%d/%m/%Y')
+        return User(**data)
+
+    def update_from_model(self, user: UserModel):
+        data = user.dict()
+        for attr in data.keys():
+            if attr == 'password':
+                pass # password shouldn't be updated directly.
+            elif attr == 'birthdate':
+                setattr(self, attr, datetime.strptime(data[attr], '%d/%m/%Y'))
+            else:
+                setattr(self, attr, data[attr])
 
     def serialize(self):
         return {

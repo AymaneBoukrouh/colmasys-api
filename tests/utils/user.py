@@ -4,12 +4,15 @@ from colmasys.models import User
 from sqlalchemy import select
 from datetime import datetime
 
-
-async def get_user_id_by_username(username):
+async def get_user_by_filters(**kwargs) -> User:
     async with AsyncTestSession() as session, session.begin():
-        query = select(User).filter_by(username=username)
+        query = select(User).filter_by(**kwargs)
         result = await session.execute(query)
         user = result.scalars().first()
+    return user
+
+async def get_user_id_by_username(username):
+    user = await get_user_by_filters(username=username)
     return user.id
 
 def generate_test_user_data(**kwargs):
