@@ -23,6 +23,14 @@ async def get_student(user_id: int, async_session=Depends(get_async_session), _=
     else:
         raise HTTPException(status_code=404, detail='User Not Found')
 
+@app.get('/students')
+async def get_students(async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
+    async with async_session() as session, session.begin():
+        query = select(User).filter_by(user_type=User.Type.student)
+        result = await session.execute(query)
+        users = result.scalars().all()
+    return [user.serialize() for user in users]
+
 @app.put('/student/{user_id}')
 async def put_student(user_model: UserModel, user_id: int, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
     async with async_session() as session, session.begin():

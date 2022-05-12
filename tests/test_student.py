@@ -42,6 +42,12 @@ class StudentTest(IsolatedAsyncioTestCase):
         self.assertEqual(response.json(), {'detail': 'User Not Found'})
 
     @authenticated_user(app, 'admin')
+    async def test_get_students(self):
+        async with AsyncClient(app=app, base_url='http://localhost') as async_client:
+            response = await async_client.get('/students')
+        self.assertEqual(response.status_code, 200)
+
+    @authenticated_user(app, 'admin')
     async def test_put_student(self):
         await add_test_user(username='edited_student')
         student = await get_user_by_filters(username='edited_student')
