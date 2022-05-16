@@ -13,7 +13,6 @@ class UserModel(BaseModel):
     password: str | None
     birthdate: str
     gender: bool
-    user_type: int
 
 
 class User(Model):

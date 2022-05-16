@@ -8,6 +8,7 @@ from sqlalchemy import select
 async def post_student(user_model: UserModel, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
     async with async_session() as session, session.begin():
         user = User.from_model(user_model)
+        user.user_type = User.Type.student
         session.add(user)
         await session.commit()
 
