@@ -3,10 +3,12 @@ from colmasys.models import User, UserModel
 from colmasys.core import auth_required
 from fastapi import Depends, HTTPException
 from sqlalchemy import select
+import uuid
 
 @app.post('/student', status_code=201)
 async def post_student(user_model: UserModel, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
     async with async_session() as session, session.begin():
+        user_model.password = str(uuid.uuid4()).split('-')[0] # random password
         user = User.from_model(user_model)
         user.user_type = User.Type.student
         session.add(user)
@@ -35,6 +37,7 @@ async def get_students(async_session=Depends(get_async_session), _=Depends(auth_
 @app.put('/student/{user_id}')
 async def put_student(user_model: UserModel, user_id: int, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
     async with async_session() as session, session.begin():
+        print(user_model)
         query = select(User).filter_by(id=user_id)
         result = await session.execute(query)
         user = result.scalars().first()
