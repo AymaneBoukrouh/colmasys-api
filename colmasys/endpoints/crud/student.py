@@ -37,7 +37,6 @@ async def get_students(async_session=Depends(get_async_session), _=Depends(auth_
 @app.put('/student/{user_id}')
 async def put_student(user_model: UserModel, user_id: int, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
     async with async_session() as session, session.begin():
-        print(user_model)
         query = select(User).filter_by(id=user_id)
         result = await session.execute(query)
         user = result.scalars().first()
