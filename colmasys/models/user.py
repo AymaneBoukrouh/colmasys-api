@@ -5,33 +5,6 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class UserByModel(BaseModel):
-    id: int | None
-    username: str | None
-    email: str | None
-
-    def error(self) -> bool:
-        args = [self.id, self.username, self.email]
-        valid_args = sum(list(map(lambda x: x is not None, args)))
-
-        if valid_args == 0:
-            error_message = 'Arguments Required'
-        elif valid_args > 1:
-            error_message = 'Too Many Arguments'
-        else:
-            return
-        return error_message
-
-    @property
-    def data(self):
-        if self.id:
-            return {'id': self.id}
-        elif self.username:
-            return {'username': self.username}
-        elif self.email:
-            return {'email': self.email}
-
-
 class UserModel(BaseModel):
     firstname: str
     lastname: str

@@ -30,34 +30,16 @@ class StudentTest(IsolatedAsyncioTestCase):
         student_id = user.id
 
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            data = {'id': student_id}
-            response = await async_client.request('GET', '/student', json=data)
+            response = await async_client.get(f'/student/{student_id}')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json().get('username'), 'student')
 
     @authenticated_user(app, 'admin')
     async def test_get_student_not_exists(self):
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            data = {'id': 100}
-            response = await async_client.request('GET', '/student', json=data)
+            response = await async_client.get('/student/100')
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json(), {'detail': 'User Not Found'})
-    
-    @authenticated_user(app, 'admin')
-    async def test_get_student_arguments_required(self):
-        async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            data = dict()
-            response = await async_client.request('GET', '/student', json=data)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json(), {'detail': 'Arguments Required'})
-
-    @authenticated_user(app, 'admin')
-    async def test_get_student_too_many_arguments(self):
-        async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            data = {'id': 1, 'username': 'student'}
-            response = await async_client.request('GET', '/student', json=data)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json(), {'detail': 'Too Many Arguments'})
 
     @authenticated_user(app, 'admin')
     async def test_get_students(self):
