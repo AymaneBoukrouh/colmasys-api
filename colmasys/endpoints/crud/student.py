@@ -14,13 +14,25 @@ async def post_student(user_model: UserModel, async_session=Depends(get_async_se
         session.add(user)
         await session.commit()
 
-@app.get('/student/{user_id}')
-async def get_student(user_id: int, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
+@app.get('/student/id/{user_id}')
+async def get_student_by_id(user_id: int, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
     async with async_session() as session, session.begin():
         query = select(User).filter_by(id=user_id)
         result = await session.execute(query)
         user = result.scalars().first()
     
+    if user:
+        return user.serialize()
+    else:
+        raise HTTPException(status_code=404, detail='User Not Found')
+
+@app.get('/student/username/{username}')
+async def get_student_by_username(username: str, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
+    async with async_session() as session, session.begin():
+        query = select(User).filter_by(username=username)
+        result = await session.execute(query)
+        user = result.scalars().first()
+
     if user:
         return user.serialize()
     else:

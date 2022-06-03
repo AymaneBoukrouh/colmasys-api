@@ -25,19 +25,29 @@ class StudentTest(IsolatedAsyncioTestCase):
         self.assertIsNotNone(user)
 
     @authenticated_user(app, 'admin')
-    async def test_get_student_exists(self):
+    async def test_get_student_exists_by_id(self):
         user = await get_user_by_filters(username='student')
         student_id = user.id
 
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            response = await async_client.get(f'/student/{student_id}')
+            response = await async_client.get(f'/student/id/{student_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json().get('username'), 'student')
+    
+    @authenticated_user(app, 'admin')
+    async def test_get_student_exists_by_username(self):
+        user = await get_user_by_filters(username='student')
+        student_username = user.username
+
+        async with AsyncClient(app=app, base_url='http://localhost') as async_client:
+            response = await async_client.get(f'/student/username/{student_username}')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json().get('username'), 'student')
 
     @authenticated_user(app, 'admin')
     async def test_get_student_not_exists(self):
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            response = await async_client.get('/student/100')
+            response = await async_client.get('/student/id/100')
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json(), {'detail': 'User Not Found'})
 
