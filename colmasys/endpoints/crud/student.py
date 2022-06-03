@@ -1,5 +1,5 @@
 from colmasys import app, get_async_session
-from colmasys.models import User, UserModel
+from colmasys.models import User, UserModel, UserByModel
 from colmasys.core import auth_required
 from fastapi import Depends, HTTPException
 from sqlalchemy import select
@@ -14,10 +14,13 @@ async def post_student(user_model: UserModel, async_session=Depends(get_async_se
         session.add(user)
         await session.commit()
 
-@app.get('/student/{user_id}')
-async def get_student(user_id: int, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
+@app.get('/student')
+async def get_student(user_by_model: UserByModel, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
+    if (error_message:=user_by_model.error()):
+        raise HTTPException(status_code=400, detail=error_message)
+
     async with async_session() as session, session.begin():
-        query = select(User).filter_by(id=user_id)
+        query = select(User).filter_by(**user_by_model.data)
         result = await session.execute(query)
         user = result.scalars().first()
     
