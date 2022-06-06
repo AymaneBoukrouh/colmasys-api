@@ -25,14 +25,14 @@ class StudentTest(IsolatedAsyncioTestCase):
         self.assertIsNotNone(user)
 
     @authenticated_user(app, 'admin')
-    async def test_get_student_exists_by_id(self):
-        user = await get_user_by_filters(username='student')
-        student_id = user.id
+    async def test_get_professor_exists_by_id(self):
+        user = await get_user_by_filters(username='professor')
+        professor_id = user.id
 
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            response = await async_client.get(f'/student/id/{student_id}')
+            response = await async_client.get(f'/professor/id/{professor_id}')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json().get('username'), 'student')
+        self.assertEqual(response.json().get('username'), 'professor')
     
     @authenticated_user(app, 'admin')
     async def test_get_student_exists_by_username(self):
@@ -45,9 +45,9 @@ class StudentTest(IsolatedAsyncioTestCase):
         self.assertEqual(response.json().get('username'), 'student')
 
     @authenticated_user(app, 'admin')
-    async def test_get_student_not_exists(self):
+    async def test_get_professor_not_exists(self):
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            response = await async_client.get('/student/id/100')
+            response = await async_client.get('/professor/id/100')
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json(), {'detail': 'User Not Found'})
 
@@ -58,18 +58,18 @@ class StudentTest(IsolatedAsyncioTestCase):
         self.assertEqual(response.status_code, 200)
 
     @authenticated_user(app, 'admin')
-    async def test_put_student(self):
-        await add_test_user(username='edited_student')
-        student = await get_user_by_filters(username='edited_student')
-        self.assertEqual(student.firstname, 'edited_student')
+    async def test_put_professor(self):
+        await add_test_user(username='edited_professor')
+        professor = await get_user_by_filters(username='edited_professor')
+        self.assertEqual(professor.firstname, 'edited_professor')
 
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
-            data = generate_test_user_data(username='edited_student')
+            data = generate_test_user_data(username='edited_professor')
             data['firstname'] = 'edited_firstname'
-            response = await async_client.put(f'/student/{student.id}', json=data)
+            response = await async_client.put(f'/professor/{professor.id}', json=data)
         self.assertEqual(response.status_code, 200)
-        edited_student = await get_user_by_filters(username='edited_student')
-        self.assertEqual(edited_student.firstname, 'edited_firstname')
+        edited_professor = await get_user_by_filters(username='edited_professor')
+        self.assertEqual(edited_professor.firstname, 'edited_firstname')
 
     @authenticated_user(app, 'admin')
     async def test_delete_student(self):
