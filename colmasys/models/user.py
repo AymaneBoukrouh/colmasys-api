@@ -1,6 +1,6 @@
 from colmasys import auth
 from colmasys.models import Model
-from sqlalchemy import Column, Integer, SmallInteger, String, DateTime, Date, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, SmallInteger, String, DateTime, Date, Boolean
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -38,6 +38,7 @@ class User(Model):
     creation_datetime = Column(DateTime, default=datetime.utcnow)
     deleted = Column(Boolean, default=False)
     deletion_datetime = Column(DateTime, nullable=True)
+    class_id = Column(Integer, ForeignKey('class.id'), nullable=True)
 
     @staticmethod
     def from_model(user: UserModel):
