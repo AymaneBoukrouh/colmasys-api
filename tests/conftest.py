@@ -28,6 +28,6 @@ async def create_test_users():
 
 async def create_test_classes():
     for i in range(4):
-        add_test_class(academic_year='2021/2022', year=1, group=i+1, major='AP')
+        await add_test_class(academic_year='2021/2022', year=1, group=i+1, major='AP')
     await add_test_class(academic_year='2021/2022', year=3, group=1, major='IIR')
     await add_test_class(academic_year='2021/2022', year=3, group=2, major='IIR')
