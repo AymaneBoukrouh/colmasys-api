@@ -1,6 +1,7 @@
 from colmasys import auth
 from colmasys.models import Model
 from sqlalchemy import Column, ForeignKey, Integer, SmallInteger, String, DateTime, Date, Boolean
+from sqlalchemy.orm import relationship
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -39,6 +40,16 @@ class User(Model):
     deleted = Column(Boolean, default=False)
     deletion_datetime = Column(DateTime, nullable=True)
     class_id = Column(Integer, ForeignKey('class.id'), nullable=True)
+    
+    _professors_and_classes = relationship('ProfessorClass', backref='professor')
+
+    @property
+    def professors(self):
+        return [pc.professor for pc in self._professors_and_classes]
+    
+    @property
+    def classes(self):
+        return [pc.class_ for pc in self._professors_and_classes]
 
     @staticmethod
     def from_model(user: UserModel):

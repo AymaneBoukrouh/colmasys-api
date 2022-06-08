@@ -23,10 +23,19 @@ class Class(Model):
     deletion_datetime = Column(DateTime, nullable=True)
 
     _students = relationship('User', backref='class_', lazy='selectin')
+    _professors_and_classes = relationship('ProfessorClass', backref='class_')
 
     @property
     def students(self):
         return [student.serialize() for student in self._students]
+
+    @property
+    def professors(self):
+        return [pc.professor for pc in self._professors_and_classes]
+    
+    @property
+    def classes(self):
+        return [pc.class_ for pc in self._professors_and_classes]
 
     @staticmethod
     def from_model(class_model: ClassModel):
