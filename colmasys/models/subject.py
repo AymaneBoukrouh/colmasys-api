@@ -39,6 +39,6 @@ class ProfessorClassModel(BaseModel):
 class ProfessorClass(Model):
     __tablename__ = 'professor_class'
     id = Column(Integer, primary_key=True)
-    professor_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    professor_id = Column(Integer, ForeignKey('professor.id'), nullable=False)
     class_id = Column(Integer, ForeignKey('class.id'), nullable=False)
     subject_id = Column(Integer, ForeignKey('subject.id'), nullable=False)
