@@ -1,4 +1,4 @@
-from colmasys.models import Account, AccountModel
+from colmasys.models import Professor, Student, Account, AccountModel
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 import uuid
