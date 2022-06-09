@@ -33,11 +33,11 @@ class Auth():
     def check_password(password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-    def encode_token(self, user_id: int, user_type) -> str:
+    def encode_token(self, account_id: int, account_type) -> str:
         payload = {
             'exp': datetime.utcnow() + timedelta(days=1),
-            'uid': user_id,
-            'type': user_type
+            'account_id': account_id,
+            'account_type': account_type
         }
 
         return jwt.encode(payload, self.secret, algorithm='HS256')

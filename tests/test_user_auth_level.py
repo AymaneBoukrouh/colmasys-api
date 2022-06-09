@@ -1,7 +1,7 @@
 from tests.test_apps.auth_app import testapp as app
-from tests.utils.dependencies import get_async_session_test, get_user_id_by_username
+from tests.utils.dependencies import get_async_session_test, get_account_id_by_username
 from colmasys import auth, get_async_session
-from colmasys.models import User
+from colmasys.models import Account
 from httpx import AsyncClient
 from unittest import IsolatedAsyncioTestCase
 
@@ -13,8 +13,8 @@ class UserAuthLevelTest(IsolatedAsyncioTestCase):
         del app.dependency_overrides[get_async_session]
     
     async def get_as_user(self, endpoint, username):
-        test_user_id = await get_user_id_by_username(username)
-        token = auth.encode_token(test_user_id, getattr(User.Type, username))
+        test_account_id = await get_account_id_by_username(username)
+        token = auth.encode_token(test_account_id, getattr(Account.Type, username.capitalize()))
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
             headers = {'Authorization': f'Bearer {token}'}
             response = await async_client.get(endpoint, headers=headers)

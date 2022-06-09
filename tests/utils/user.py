@@ -1,26 +1,31 @@
 from tests.utils.db import AsyncTestSession
 from colmasys import auth
-from colmasys.models import User
+from colmasys.models import Account, Student
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from datetime import datetime
 
-async def get_user_by_filters(**kwargs) -> User:
+async def get_account_by_filters(**kwargs) -> Account:
     async with AsyncTestSession() as session, session.begin():
-        query = select(User).filter_by(**kwargs)
-        result = await session.execute(query)
-        user = result.scalars().first()
-    return user
+        query = (
+            select(Account)
+            .filter_by(**kwargs)
+        )
 
-async def get_user_id_by_username(username):
-    user = await get_user_by_filters(username=username)
-    return user.id
+        result = await session.execute(query)
+        account = result.scalars().first()
+    return account
+
+async def get_account_id_by_username(username):
+    account = await get_account_by_filters(username=username)
+    return account.id
 
 def generate_test_user_data(**kwargs):
     username = kwargs['username']
     default_values = {
         'firstname': username, 'lastname': username, 'username': username,
         'email': f'{username}@domain.com', 'password': username,
-        'birthdate': '01/01/2000', 'gender': 1, 'user_type': 0
+        'birthdate': '01/01/2000', 'gender': 1, 'account_type': 0
     }
 
     fields = default_values.keys()
@@ -39,7 +44,12 @@ async def add_test_user(**kwargs):
             data[field] = datetime.strptime(data[field], '%d/%m/%Y')
 
     async with AsyncTestSession() as session, session.begin():
-        user = User(**data)
-        session.add(user)
+        account = Account(**data)
+        session.add(account)
+
+        student = Student(account=account)
+        session.add(student)
+
         await session.commit()
-    return user
+    
+    return await get_account_by_filters(id=account.id)

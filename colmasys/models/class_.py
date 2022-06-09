@@ -1,6 +1,6 @@
-from colmasys.models import Model, User
+from colmasys.models import Model
 from sqlalchemy import Column, Integer, SmallInteger, String, DateTime, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from pydantic import BaseModel
 
 
@@ -22,20 +22,16 @@ class Class(Model):
     deleted = Column(Boolean, default=False)
     deletion_datetime = Column(DateTime, nullable=True)
 
-    _students = relationship('User', backref='class_', lazy='selectin')
-    _professors_and_classes = relationship('ProfessorClass', backref='class_')
-
-    @property
-    def students(self):
-        return [student.serialize() for student in self._students]
+    students = relationship('Student', backref=backref('class_', lazy='selectin'), lazy='selectin')
+    _pcs = relationship('ProfessorClassSubject', backref=backref('class_', lazy='selectin'), lazy='selectin')
 
     @property
     def professors(self):
-        return [pc.professor for pc in self._professors_and_classes]
+        return [pcs.professor for pcs in self._pcs]
     
     @property
-    def classes(self):
-        return [pc.class_ for pc in self._professors_and_classes]
+    def subjects(self):
+        return [pcs.subjects for pcs in self._pcs]
 
     @staticmethod
     def from_model(class_model: ClassModel):

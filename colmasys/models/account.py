@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class UserModel(BaseModel):
+class AccountModel(BaseModel):
     firstname: str
     lastname: str
     username: str | None
@@ -16,17 +16,17 @@ class UserModel(BaseModel):
     gender: bool
 
 
-class User(Model):
+class Account(Model):
     class Type:
-        admin = 0
-        student = 1
-        professor = 2
+        Admin = 0
+        Student = 1
+        Professor = 2
 
     class Gender:
         male = 0
         female = 1
 
-    __tablename__ = 'user'
+    __tablename__ = 'account'
     id = Column(Integer, primary_key=True)
     firstname = Column(String(32), nullable=False)
     lastname = Column(String(32), nullable=False)
@@ -35,31 +35,30 @@ class User(Model):
     password = Column(String(60), nullable=False)
     birthdate = Column(Date, nullable=True)
     gender = Column(Boolean, nullable=False)
-    user_type = Column(SmallInteger, nullable=False)
+    account_type = Column(SmallInteger, nullable=False)
     creation_datetime = Column(DateTime, default=datetime.utcnow)
     deleted = Column(Boolean, default=False)
     deletion_datetime = Column(DateTime, nullable=True)
-    class_id = Column(Integer, ForeignKey('class.id'), nullable=True)
-    
-    _professors_and_classes = relationship('ProfessorClass', backref='professor')
+
+    professor_id = Column(Integer, ForeignKey('professor.id', ondelete='CASCADE'), nullable=True)
+    student_id = Column(Integer, ForeignKey('student.id', ondelete='CASCADE'), nullable=True)
 
     @property
-    def professors(self):
-        return [pc.professor for pc in self._professors_and_classes]
+    def user(self):
+        users = [self.professor, self.student]
+        for user in users:
+            if user:
+                return user
     
-    @property
-    def classes(self):
-        return [pc.class_ for pc in self._professors_and_classes]
-
     @staticmethod
-    def from_model(user: UserModel):
-        data = user.dict()
-        data['password'] = auth.hash_password(user.password)
-        data['birthdate'] = datetime.strptime(user.birthdate, '%d/%m/%Y')
-        return User(**data)
+    def from_model(model: AccountModel):
+        data = model.dict()
+        data['password'] = auth.hash_password(model.password)
+        data['birthdate'] = datetime.strptime(model.birthdate, '%d/%m/%Y')
+        return Account(**data)
 
-    def update_from_model(self, user: UserModel):
-        data = user.dict()
+    def update_from_model(self, model: AccountModel):
+        data = model.dict()
         for attr in data.keys():
             if attr == 'password':
                 pass # password shouldn't be updated directly.

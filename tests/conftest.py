@@ -1,7 +1,7 @@
 from tests import URI
 from tests.utils.user import add_test_user
 from tests.utils.class_ import add_test_class
-from colmasys.models import Model, User
+from colmasys.models import Model, Account
 from sqlalchemy.ext.asyncio import create_async_engine
 import asyncio
 
@@ -22,9 +22,9 @@ async def reset_and_synchronise_database():
 
 async def create_test_users():
     await add_test_user(username='user', password='pass')
-    await add_test_user(user_type=User.Type.admin, username='admin', password='admin')
-    await add_test_user(user_type=User.Type.professor, username='professor', password='admin')
-    await add_test_user(user_type=User.Type.student, username='student', password='student')
+    await add_test_user(account_type=Account.Type.Admin, username='admin', password='admin')
+    await add_test_user(account_type=Account.Type.Professor, username='professor', password='admin')
+    await add_test_user(account_type=Account.Type.Student, username='student', password='student')
 
 async def create_test_classes():
     for i in range(4):

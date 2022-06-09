@@ -2,7 +2,7 @@
 from tests.utils.user import add_test_user
 from colmasys import app, get_async_session
 from colmasys.core import auth_required
-from colmasys.models import Model, User
+from colmasys.models import Model, Account
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -54,12 +54,12 @@ async def reset_and_synchronise_database():
 
 async def create_test_users():
     await add_test_user(username='user', password='pass')
-    await add_test_user(user_type=User.Type.admin, username='admin', password='admin')
-    await add_test_user(user_type=User.Type.professor, username='professor', password='admin')
-    await add_test_user(user_type=User.Type.student, username='student', password='student')
+    await add_test_user(user_type=Account.Type.Admin, username='admin', password='admin')
+    await add_test_user(user_type=Account.Type.Professor, username='professor', password='admin')
+    await add_test_user(user_type=Account.Type.Student, username='student', password='student')
 
     for x in range(5):
-        await add_test_user(user_type=User.Type.student, username=f'student{x+1}', password=f'student{x+1}')
+        await add_test_user(account_type=Account.Type.Student, username=f'student{x+1}', password=f'student{x+1}')
 
 ### main
 if __name__ == '__main__':

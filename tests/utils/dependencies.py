@@ -1,8 +1,8 @@
 from tests import URI
 from tests.utils.db import AsyncTestSession
-from tests.utils.user import get_user_id_by_username
+from tests.utils.user import get_account_id_by_username
 from colmasys.core import auth_required
-from colmasys.models import User
+from colmasys.models import Account
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -20,16 +20,16 @@ async def get_async_session_test():
 
 ### authentication
 async def auth_any():
-    return await get_user_id_by_username('user')
+    return await get_account_id_by_username('user')
 
 async def auth_admin():
-    return await get_user_id_by_username('admin')
+    return await get_account_id_by_username('admin')
 
-def authenticated_user(app, user_type=None):
-    if not user_type:
+def authenticated_user(app, account_type=None):
+    if not account_type:
         auth_level = auth_required.auth_required
         auth_dependency = auth_any
-    elif user_type == 'admin':
+    elif account_type == 'admin':
         auth_level = auth_required.admin_auth_required
         auth_dependency = auth_admin
 

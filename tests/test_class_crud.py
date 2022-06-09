@@ -2,7 +2,6 @@ from tests.utils.db import AsyncTestSession
 from tests.utils.class_ import get_class_by_filters, add_test_class
 from tests.utils.dependencies import get_async_session_test, authenticated_user
 from colmasys import app, get_async_session
-from colmasys.models import User
 from sqlalchemy import select 
 from httpx import AsyncClient
 from unittest import IsolatedAsyncioTestCase
