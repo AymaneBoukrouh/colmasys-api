@@ -27,4 +27,10 @@ async def register_account_by_type(session, account_model: AccountModel, account
     account.account_type = account_type
     session.add(account)
 
+    if account_type == Account.Type.Professor:
+        user = Professor(account=account)
+    elif account_type == Account.Type.Student:
+        user = Student(account=account)
+    
+    session.add(user)
     await session.commit()
