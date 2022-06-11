@@ -22,7 +22,7 @@ class AuthTest(IsolatedAsyncioTestCase):
             response = await async_client.get('/protected')
         self.assertEqual(response.status_code, 403)
     
-    @authenticated_user(app)
+    @authenticated_user(app, username='user')
     async def test_protected_authorized_endpoint(self):
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
             response = await async_client.get('/protected')

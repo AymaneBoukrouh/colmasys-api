@@ -1,6 +1,7 @@
 from tests import URI
-from tests.utils.user import add_test_user
+from tests.utils.user import add_test_user, get_account_by_filters
 from tests.utils.class_ import add_test_class
+from tests.utils.post import add_test_post
 from colmasys.models import Model, Account
 from sqlalchemy.ext.asyncio import create_async_engine
 import asyncio
@@ -12,6 +13,7 @@ async def main():
     await reset_and_synchronise_database()
     await create_test_users()
     await create_test_classes()
+    await create_test_posts()
 
 async def reset_and_synchronise_database():
     engine = create_async_engine(URI)
@@ -31,3 +33,10 @@ async def create_test_classes():
         await add_test_class(academic_year='2021/2022', year=1, group=i+1, major='AP')
     await add_test_class(academic_year='2021/2022', year=3, group=1, major='IIR')
     await add_test_class(academic_year='2021/2022', year=3, group=2, major='IIR')
+
+async def create_test_posts():
+    await add_test_post(
+        title = 'Post Title',
+        content = 'Post content.',
+        author = await get_account_by_filters(username='user')
+    )
