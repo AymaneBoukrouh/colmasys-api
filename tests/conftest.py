@@ -1,7 +1,8 @@
 from tests import URI
 from tests.utils.user import add_test_user, get_account_by_filters
 from tests.utils.class_ import add_test_class
-from tests.utils.post import add_test_post
+from tests.utils.post import add_test_post, get_post_by_filters
+from tests.utils.comment import add_test_comment
 from colmasys.models import Model, Account
 from sqlalchemy.ext.asyncio import create_async_engine
 import asyncio
@@ -14,6 +15,7 @@ async def main():
     await create_test_users()
     await create_test_classes()
     await create_test_posts()
+    await create_test_comments()
 
 async def reset_and_synchronise_database():
     engine = create_async_engine(URI)
@@ -24,6 +26,7 @@ async def reset_and_synchronise_database():
 
 async def create_test_users():
     await add_test_user(username='user', password='pass')
+    await add_test_user(username='random_user', password='random_pass')
     await add_test_user(account_type=Account.Type.Admin, username='admin', password='admin')
     await add_test_user(account_type=Account.Type.Professor, username='professor', password='admin')
     await add_test_user(account_type=Account.Type.Student, username='student', password='student')
@@ -39,4 +42,13 @@ async def create_test_posts():
         title = 'Post Title',
         content = 'Post content.',
         author = await get_account_by_filters(username='user')
+    )
+
+async def create_test_comments():
+    post = await get_post_by_filters(title='Post Title')
+
+    await add_test_comment(
+        content = 'Post comment.',
+        author = post.author,
+        post = post
     )

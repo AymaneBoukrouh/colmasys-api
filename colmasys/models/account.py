@@ -1,7 +1,7 @@
 from colmasys import auth
 from colmasys.models import Model
 from sqlalchemy import Column, ForeignKey, Integer, SmallInteger, String, DateTime, Date, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -43,13 +43,16 @@ class Account(Model):
     professor_id = Column(Integer, ForeignKey('professor.id', ondelete='CASCADE'), nullable=True)
     student_id = Column(Integer, ForeignKey('student.id', ondelete='CASCADE'), nullable=True)
 
+    posts = relationship('Post', backref=backref('author', lazy='selectin'), lazy='selectin')
+    comments = relationship('Comment', backref=backref('author', lazy='selectin'), lazy='selectin')
+
     @property
     def user(self):
         users = [self.professor, self.student]
         for user in users:
             if user:
                 return user
-    
+
     @staticmethod
     def from_model(model: AccountModel):
         data = model.dict()

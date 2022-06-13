@@ -7,3 +7,5 @@ from colmasys.models.professor import *
 from colmasys.models.student import *
 from colmasys.models.class_ import *
 from colmasys.models.subject import *
+from colmasys.models.post_comment import *
+from colmasys.models.vote import *
