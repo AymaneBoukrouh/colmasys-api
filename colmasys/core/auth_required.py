@@ -13,7 +13,7 @@ def check_authorization_level(auth: HTTPAuthorizationCredentials, account_type: 
 
 ### authorization required
 def auth_required(auth:HTTPAuthorizationCredentials=Security(colmasys_auth.security)):
-    return colmasys_auth.decode_token(auth.credentials).get('uid')
+    return colmasys_auth.decode_token(auth.credentials).get('account_id')
 
 def admin_auth_required(auth:HTTPAuthorizationCredentials=Security(colmasys_auth.security)):
     return check_authorization_level(auth, Account.Type.Admin)
