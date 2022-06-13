@@ -19,19 +19,27 @@ async def get_async_session_test():
         await engine.dispose()
 
 ### authentication
-async def auth_any():
-    return await get_account_id_by_username('user')
+async def auth_any(username: str):
+    return await get_account_id_by_username(username)
 
 async def auth_admin():
     return await get_account_id_by_username('admin')
 
-def authenticated_user(app, account_type=None):
+async def auth_student():
+    return await get_account_id_by_username('student')
+
+def authenticated_user(app, account_type=None, username=None):
     if not account_type:
         auth_level = auth_required.auth_required
-        auth_dependency = auth_any
+        async def tmp_auth():
+            return await auth_any(username=username)
+        auth_dependency = tmp_auth
     elif account_type == 'admin':
         auth_level = auth_required.admin_auth_required
         auth_dependency = auth_admin
+    elif account_type == 'student':
+        auth_level = auth_required.student_auth_required
+        auth_dependency = auth_student
 
     def decorator(test_func):
         @wraps(test_func)
