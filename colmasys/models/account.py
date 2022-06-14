@@ -49,12 +49,22 @@ class Account(Model):
     post_votes = relationship('PostVote', backref=backref('account', lazy='selectin'), lazy='selectin')
     comment_votes = relationship('CommentVote', backref=backref('account', lazy='selectin'), lazy='selectin')
 
+    messages = relationship('Message', backref=backref('author', lazy='selectin'), lazy='selectin')
+
     @property
     def user(self):
         users = [self.professor, self.student]
         for user in users:
             if user:
                 return user
+
+    @property
+    def private_chats(self):
+        return [chat for chat in self.chats if not chat.group]
+
+    @property
+    def group_chats(self):
+        return [chat for chat in self.chats if chat.group]
 
     @staticmethod
     def from_model(model: AccountModel):
