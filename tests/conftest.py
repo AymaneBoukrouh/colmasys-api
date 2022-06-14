@@ -2,7 +2,8 @@ from tests import URI
 from tests.utils.user import add_test_user, get_account_by_filters
 from tests.utils.class_ import add_test_class
 from tests.utils.post import add_test_post, get_post_by_filters
-from tests.utils.comment import add_test_comment
+from tests.utils.comment import add_test_comment, get_comment_by_filters
+from tests.utils.vote import add_test_vote
 from colmasys.models import Model, Account
 from sqlalchemy.ext.asyncio import create_async_engine
 import asyncio
@@ -16,6 +17,7 @@ async def main():
     await create_test_classes()
     await create_test_posts()
     await create_test_comments()
+    await create_test_votes()
 
 async def reset_and_synchronise_database():
     engine = create_async_engine(URI)
@@ -51,4 +53,13 @@ async def create_test_comments():
         content = 'Post comment.',
         author = post.author,
         post = post
+    )
+
+async def create_test_votes():
+    comment = await get_comment_by_filters(content='Post comment.')
+
+    await add_test_vote(
+        value = True,
+        account = comment.author,
+        comment = comment
     )

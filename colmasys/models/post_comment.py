@@ -41,6 +41,7 @@ class Comment(UserContent):
 
     author_id = Column(Integer, ForeignKey('account.id', ondelete='CASCADE'), nullable=False)
     post_id = Column(Integer, ForeignKey('post.id', ondelete='CASCADE'), nullable=False)
+    votes = relationship('CommentVote', backref=backref('comment', lazy='selectin'), lazy='selectin')
 
     @staticmethod
     def from_model(model: CommentModel):
@@ -53,6 +54,8 @@ class Post(UserContent):
     title = Column(String(256))
     author_id = Column(Integer, ForeignKey('account.id', ondelete='CASCADE'), nullable=False)
     comments = relationship('Comment', backref=backref('post', lazy='selectin'), lazy='selectin')
+    votes = relationship('PostVote', backref=backref('post', lazy='selectin'), lazy='selectin')
+
 
     @staticmethod
     def from_model(model: PostModel):

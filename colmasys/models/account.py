@@ -45,6 +45,9 @@ class Account(Model):
 
     posts = relationship('Post', backref=backref('author', lazy='selectin'), lazy='selectin')
     comments = relationship('Comment', backref=backref('author', lazy='selectin'), lazy='selectin')
+    
+    post_votes = relationship('PostVote', backref=backref('account', lazy='selectin'), lazy='selectin')
+    comment_votes = relationship('CommentVote', backref=backref('account', lazy='selectin'), lazy='selectin')
 
     @property
     def user(self):
