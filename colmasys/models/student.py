@@ -16,6 +16,10 @@ class Student(Model):
 
     class_id = Column(Integer, ForeignKey('class.id', ondelete='CASCADE'), nullable=True)
 
+    @property
+    def clubs(self):
+        return self.clubs_staff + self.clubs_member
+
     def serialize(self):
         return {
             'id': self.id,

@@ -7,3 +7,4 @@ from colmasys.endpoints.crud.post import *
 from colmasys.endpoints.crud.comment import *
 from colmasys.endpoints.crud.vote import *
 from colmasys.endpoints.crud.chat import *
+from colmasys.endpoints.crud.club import *

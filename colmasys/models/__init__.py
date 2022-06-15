@@ -10,3 +10,4 @@ from colmasys.models.subject import *
 from colmasys.models.post_comment import *
 from colmasys.models.vote import *
 from colmasys.models.chat_message import *
+from colmasys.models.club import *
