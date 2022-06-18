@@ -1,5 +1,5 @@
 from tests import URI
-from tests.utils.user import add_test_user, get_account_by_filters
+from tests.utils.user import add_test_user, get_account_by_filters, add_test_student
 from tests.utils.class_ import add_test_class
 from tests.utils.post import add_test_post, get_post_by_filters
 from tests.utils.comment import add_test_comment, get_comment_by_filters
@@ -33,7 +33,7 @@ async def create_test_users():
     await add_test_user(username='random_user', password='random_pass')
     await add_test_user(account_type=Account.Type.Admin, username='admin', password='admin')
     await add_test_user(account_type=Account.Type.Professor, username='professor', password='admin')
-    await add_test_user(account_type=Account.Type.Student, username='student', password='student')
+    await add_test_student(username='student', password='student')
 
 async def create_test_classes():
     for i in range(4):

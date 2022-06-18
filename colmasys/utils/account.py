@@ -16,10 +16,9 @@ async def get_account_by(session, **kwargs):
     scalars = await account_filter_by_scalars(session, **kwargs)
     return scalars.first()
 
-async def get_accounts_by_type(session, account_type: Account.Type):
-    scalars = await account_filter_by_scalars(session, account_type=account_type)
-    accounts = scalars.all()
-    return [account.serialize() for account in accounts]
+async def get_accounts_by_type(session, account_type):
+    users = (await session.execute(select(account_type))).scalars().all()
+    return [user.account.serialize() for user in users]
 
 async def register_account_by_type(session, account_model: AccountModel, account_type: Account.Type):
     account_model.password = str(uuid.uuid4()).split('-')[0] # random password

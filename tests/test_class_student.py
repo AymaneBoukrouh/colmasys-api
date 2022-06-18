@@ -1,6 +1,6 @@
 from tests.utils.db import AsyncTestSession
 from tests.utils.class_ import get_class_by_filters, add_test_class
-from tests.utils.user import get_account_by_filters, add_test_user
+from tests.utils.user import get_account_by_filters, add_test_user, add_test_student
 from tests.utils.dependencies import get_async_session_test, authenticated_user
 from colmasys import app, get_async_session
 from colmasys.models import Account, Student
@@ -18,39 +18,39 @@ class ClassStudentTest(IsolatedAsyncioTestCase):
 
     @authenticated_user(app, 'admin')
     async def test_add_student_to_class(self):
-        new_student = await add_test_user(username='new_iir_student', account_type=Account.Type.Student)
+        new_student = await add_test_student(username='new_iir_student')
         new_class = await add_test_class(academic_year='2019/2020', year=1, group=1, major='IIR')
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
             response = await async_client.post(f'/class/{new_class.id}/student/{new_student.id}')
         self.assertEqual(response.status_code, 200)
 
-        student = await get_account_by_filters(id=new_student.id)
-        self.assertEqual(student.user.class_id, new_class.id)
+        student_account = await get_account_by_filters(id=new_student.account.id)
+        self.assertEqual(student_account.student.class_id, new_class.id)
 
     @authenticated_user(app, 'admin')
     async def test_remove_student_from_class(self):
-        new_student = await add_test_user(username='new_20182019_3irr_g2_student', account_type=Account.Type.Student)
+        new_student = await add_test_student(username='new_20182019_3irr_g2_student')
         new_class = await add_test_class(academic_year='2018/2019', year=3, group=2, major='IIR')
         async with AsyncTestSession() as session, session.begin():
             query = (
-                select(Account)
+                select(Student)
                 .filter_by(id=new_student.id)
             )
 
             result = await session.execute(query)
             student = result.scalars().first()
-            student.user.class_id = new_class.id
+            student.class_id = new_class.id
             await session.commit()
 
-        student = await get_account_by_filters(id=new_student.id)
-        self.assertEqual(student.user.class_id, new_class.id)
+        student_account = await get_account_by_filters(id=new_student.account.id)
+        self.assertEqual(student_account.student.class_id, new_class.id)
 
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
             response = await async_client.delete(f'/class/{new_class.id}/student/{new_student.id}')
         self.assertEqual(response.status_code, 200)
 
-        student = await get_account_by_filters(id=new_student.id)
-        self.assertIsNone(student.user.class_id)
+        student = (await get_account_by_filters(id=new_student.account.id)).student
+        self.assertIsNone(student.class_id)
 
     @authenticated_user(app, 'admin')
     async def test_get_students_of_class(self):
@@ -60,18 +60,18 @@ class ClassStudentTest(IsolatedAsyncioTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 0)
 
-        new_student = await add_test_user(username='new_20182019_1gc_g1_student')
+        new_student = await add_test_student(username='new_20182019_1gc_g1_student')
         async with AsyncTestSession() as session, session.begin():
             query = (
-                select(Account)
+                select(Student)
                 .filter_by(id=new_student.id)
             )
             result = await session.execute(query)
             student = result.scalars().first()
-            student.user.class_id = new_class.id
+            student.class_id = new_class.id
             await session.commit()
         
-        student = await get_account_by_filters(id=new_student.id)
+        student = await get_account_by_filters(id=new_student.account.id)
         self.assertEqual(student.user.class_id, new_class.id)
 
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:

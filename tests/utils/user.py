@@ -47,9 +47,16 @@ async def add_test_user(**kwargs):
         account = Account(**data)
         session.add(account)
 
-        student = Student(account=account)
-        session.add(student)
-
         await session.commit()
     
     return await get_account_by_filters(id=account.id)
+
+async def add_test_student(class_=None, **kwargs):
+    account = await add_test_user(**kwargs)
+
+    async with AsyncTestSession() as session, session.begin():
+        student = Student(account=account, class_=class_)
+        session.add(student)
+        await session.commit()
+
+    return student

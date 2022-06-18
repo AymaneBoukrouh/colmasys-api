@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from test_data import create_test_data
 from tests.utils.user import add_test_user
 from colmasys import app, get_async_session
 from colmasys.core import auth_required
@@ -43,7 +44,7 @@ app.add_middleware(
 ### data
 async def main():
     await reset_and_synchronise_database()
-    await create_test_users()
+    await create_test_data()
 
 async def reset_and_synchronise_database():
     engine = create_async_engine(URI)
@@ -51,15 +52,6 @@ async def reset_and_synchronise_database():
         await connection.run_sync(Model.metadata.drop_all) 
         await connection.run_sync(Model.metadata.create_all)
     await engine.dispose()
-
-async def create_test_users():
-    await add_test_user(username='user', password='pass')
-    await add_test_user(user_type=Account.Type.Admin, username='admin', password='admin')
-    await add_test_user(user_type=Account.Type.Professor, username='professor', password='admin')
-    await add_test_user(user_type=Account.Type.Student, username='student', password='student')
-
-    for x in range(5):
-        await add_test_user(account_type=Account.Type.Student, username=f'student{x+1}', password=f'student{x+1}')
 
 ### main
 if __name__ == '__main__':

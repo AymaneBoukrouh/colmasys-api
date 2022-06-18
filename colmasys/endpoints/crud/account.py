@@ -1,5 +1,5 @@
 from colmasys import app, get_async_session
-from colmasys.models import Account, AccountModel
+from colmasys.models import Account, AccountModel, Student, Professor
 from colmasys.core import auth_required
 from colmasys.utils.account import get_account_by, register_account_by_type, get_accounts_by_type
 from fastapi import Request, Depends, HTTPException
@@ -19,7 +19,7 @@ async def post_account(request: Request, account_model: AccountModel, async_sess
 async def get_accounts(request: Request, async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):
     path_end = request.url._url.split('/')[-1]
     async with async_session() as session, session.begin():
-        account_type = Account.Type.Professor if (path_end == 'professors') else Account.Type.Student
+        account_type = Professor if (path_end == 'professors') else Student
         return await get_accounts_by_type(session, account_type)
 
 @app.get('/professor/id/{account_id}')
