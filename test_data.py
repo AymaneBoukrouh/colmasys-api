@@ -13,18 +13,18 @@ async def create_test_data():
     ###############
 
     classes = (
-        await add_test_class(major='AP', year=1, group=1, academic_year='2020/2021'),
-        await add_test_class(major='AP', year=1, group=2, academic_year='2020/2021'),
-        await add_test_class(major='AP', year=1, group=3, academic_year='2020/2021'),
-        await add_test_class(major='AP', year=1, group=4, academic_year='2020/2021'),
-        await add_test_class(major='GC', year=1, group=1, academic_year='2020/2021'),
-        await add_test_class(major='AP', year=2, group=1, academic_year='2020/2021'),
-        await add_test_class(major='AP', year=2, group=2, academic_year='2020/2021'),
-        await add_test_class(major='GC', year=2, group=1, academic_year='2020/2021'),
-        await add_test_class(major='IIR', year=3, group=1, academic_year='2020/2021'),
-        await add_test_class(major='IIR', year=3, group=2, academic_year='2020/2021'),
-        await add_test_class(major='GC', year=3, group=1, academic_year='2020/2021'),
-        await add_test_class(major='IFA', year=3, group=1, academic_year='2020/2021')
+        await add_test_class(major='AP', year=1, group=1, academic_year='2021/2022'),
+        await add_test_class(major='AP', year=1, group=2, academic_year='2021/2022'),
+        await add_test_class(major='AP', year=1, group=3, academic_year='2021/2022'),
+        await add_test_class(major='AP', year=1, group=4, academic_year='2021/2022'),
+        await add_test_class(major='GC', year=1, group=1, academic_year='2021/2022'),
+        await add_test_class(major='AP', year=2, group=1, academic_year='2021/2022'),
+        await add_test_class(major='AP', year=2, group=2, academic_year='2021/2022'),
+        await add_test_class(major='GC', year=2, group=1, academic_year='2021/2022'),
+        await add_test_class(major='IIR', year=3, group=1, academic_year='2021/2022'),
+        await add_test_class(major='IIR', year=3, group=2, academic_year='2021/2022'),
+        await add_test_class(major='GC', year=3, group=1, academic_year='2021/2022'),
+        await add_test_class(major='IFA', year=3, group=1, academic_year='2021/2022')
     )
 
     ################
