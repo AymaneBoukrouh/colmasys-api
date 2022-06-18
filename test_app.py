@@ -14,10 +14,10 @@ import os
 
 ### environment variables
 load_dotenv()
-DB_USER = os.environ['TEST_DB_USER']
-DB_PASS = os.environ['TEST_DB_PASS']
-DB_HOST = os.environ['TEST_DB_HOST']
-DB_NAME = os.environ['TEST_DB_NAME']
+DB_USER = os.environ['DEMO_DB_USER']
+DB_PASS = os.environ['DEMO_DB_PASS']
+DB_HOST = os.environ['DEMO_DB_HOST']
+DB_NAME = os.environ['DEMO_DB_NAME']
 URI = f'mysql+aiomysql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
 
 ### database
