@@ -52,5 +52,9 @@ class Class(Model):
             'academic_year': self.academic_year,
             'year': self.year,
             'group': self.group,
-            'major': self.major
+            'major': self.major,
+            'name': self.name,
+            'number_of_students': len(self.students),
+            'number_of_professors': len(self.professors),
+            'number_of_subjects': len(self.subjects)
         }
