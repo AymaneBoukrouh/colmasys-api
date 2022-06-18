@@ -44,7 +44,7 @@ async def create_test_data():
     ################
 
     for class_ in classes:
-        if (class_.major != 'IIR') and (class_.group != 2):
+        if not ((class_.major == 'IIR') and (class_.group == 2)):
             for _ in range(random.randint(20, 35)):
                 gender = random.choice(['M', 'F'])
                 if gender == 'M':
