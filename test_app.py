@@ -30,6 +30,7 @@ async def get_async_session_test():
         await engine.dispose()
 
 app.dependency_overrides[get_async_session] = get_async_session_test
+app.dependency_overrides[get_async_session] = get_async_session_test
 app.dependency_overrides[auth_required.admin_auth_required] = lambda: 1
 
 app.add_middleware(

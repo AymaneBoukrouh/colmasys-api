@@ -1,10 +1,22 @@
 from tests.utils.user import add_test_student
 from tests.utils.class_ import add_test_class, get_class_by_filters
 from colmasys.models import Account
+from dotenv import load_dotenv
 import sqlalchemy
 import faker
 import random
+import mock
+import os
 
+### environment variables
+load_dotenv()
+DB_USER = os.environ['DEMO_DB_USER']
+DB_PASS = os.environ['DEMO_DB_PASS']
+DB_HOST = os.environ['DEMO_DB_HOST']
+DB_NAME = os.environ['DEMO_DB_NAME']
+URI = f'mysql+aiomysql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
+
+@mock.patch('tests.utils.db.AsyncTestSession.URI', URI)
 async def create_test_data():
     fake = faker.Faker()
 
