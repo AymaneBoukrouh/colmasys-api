@@ -1,4 +1,4 @@
-from tests.utils.user import add_test_student
+from tests.utils.user import add_test_student, add_test_professor
 from tests.utils.class_ import add_test_class, get_class_by_filters
 from colmasys.models import Account
 from dotenv import load_dotenv
@@ -38,6 +38,33 @@ async def create_test_data():
         await add_test_class(major='GC', year=3, group=1, academic_year='2021/2022'),
         await add_test_class(major='IFA', year=3, group=1, academic_year='2021/2022')
     )
+
+    ##################
+    ### Professors ###
+    ##################
+
+    for _ in range(random.randint(30, 50)):
+        gender = random.choice(['M', 'F'])
+        if gender == 'M':
+            firstname = fake.first_name_male()
+            lastname = fake.last_name_male()
+            gender = Account.Gender.male
+        else:
+            firstname = fake.first_name_female()
+            lastname = fake.last_name_female()
+            gender = Account.Gender.female
+
+        try:
+            await add_test_professor(
+                username = f'T{random.randint(10000, 99999)}', firstname = firstname, lastname = lastname, email = f'{lastname.upper()}_{firstname.upper()}@emsi-edu.ma',
+                birthdate = f'{fake.date(fake.date(pattern="%d/%m"))}/{random.randint(1999, 2004)}', gender = gender
+            )
+        
+        except sqlalchemy.exc.IntegrityError:
+            pass # ignore duplicate entries
+        except ValueError:
+            pass # ignore invalid date (29th of february in non-leap year)
+
 
     ################
     ### Students ###

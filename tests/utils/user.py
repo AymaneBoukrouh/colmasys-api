@@ -1,6 +1,6 @@
 from tests.utils.db import AsyncTestSession
 from colmasys import auth
-from colmasys.models import Account, Student
+from colmasys.models import Account, Student, Professor
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from datetime import datetime
@@ -60,3 +60,13 @@ async def add_test_student(class_=None, **kwargs):
         await session.commit()
 
     return student
+
+async def add_test_professor(**kwargs):
+    account = await add_test_user(**kwargs)
+
+    async with AsyncTestSession() as session, session.begin():
+        professor = Professor(account=account)
+        session.add(professor)
+        await session.commit()
+
+    return professor
