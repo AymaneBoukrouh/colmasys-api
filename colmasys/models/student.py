@@ -21,8 +21,9 @@ class Student(Model):
         return self.clubs_staff + self.clubs_member
 
     def serialize(self):
-        return {
-            'id': self.id,
-            'account': self.account.serialize(),
-            'class': self.class_.serialize()
+        data = {
+            'id': self.id
         }
+
+        data.update(self.account.serialize())
+        return data

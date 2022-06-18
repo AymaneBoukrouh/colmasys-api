@@ -18,7 +18,7 @@ async def get_account_by(session, **kwargs):
 
 async def get_accounts_by_type(session, account_type):
     users = (await session.execute(select(account_type))).scalars().all()
-    return [user.account.serialize() for user in users]
+    return [user.serialize() for user in users]
 
 async def get_students(session):
     return await get_accounts_by_type(session, Student)

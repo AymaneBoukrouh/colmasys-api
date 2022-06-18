@@ -20,3 +20,11 @@ class Professor(Model):
     @property
     def subjects(self):
         return [pcs.subject for pcs in self._pcs]
+
+    def serialize(self):
+        data = {
+            'id': self.id
+        }
+
+        data.update(self.account.serialize())
+        return data
