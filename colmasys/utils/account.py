@@ -40,8 +40,16 @@ async def register_account_by_type(session, account_model: AccountModel, account
     session.add(user)
     await session.commit()
 
-async def register_student(session, account_model):
-    await register_account_by_type(session, account_model, Account.Type.Student)
+async def register_student(session, student_model):
+    student_model.password = str(uuid.uuid4()).split('-')[0] # random password
+    account = Account.from_model(student_model)
+    account.account_type = Account.Type.Student
+    session.add(account)
+
+    user = Student(account=account, class_id=student_model.class_id)
+    
+    session.add(user)
+    await session.commit()
 
 async def register_professor(session, account_model):
     await register_account_by_type(session, account_model, Account.Type.Professor)

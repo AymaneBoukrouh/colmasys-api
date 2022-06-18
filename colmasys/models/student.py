@@ -1,9 +1,13 @@
 from colmasys import auth
-from colmasys.models import Model
+from colmasys.models import Model, AccountModel
 from sqlalchemy import Column, ForeignKey, Integer, SmallInteger, String, DateTime, Date, Boolean
 from sqlalchemy.orm import relationship, backref
 from pydantic import BaseModel
 from datetime import datetime
+
+
+class StudentModel(AccountModel):
+    class_id: int | None
 
 
 class Student(Model):

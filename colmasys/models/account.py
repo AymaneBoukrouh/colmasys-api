@@ -69,6 +69,7 @@ class Account(Model):
     @staticmethod
     def from_model(model: AccountModel):
         data = model.dict()
+        data.pop('class_id', None)
         data['password'] = auth.hash_password(model.password)
         data['birthdate'] = datetime.strptime(model.birthdate, '%d/%m/%Y')
         return Account(**data)
