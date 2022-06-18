@@ -7,7 +7,7 @@ from sqlalchemy import select
 from httpx import AsyncClient
 from unittest import IsolatedAsyncioTestCase
 
-class StudentTest(IsolatedAsyncioTestCase):
+class UserTest(IsolatedAsyncioTestCase):
     def setUp(self):
         app.dependency_overrides[get_async_session] = get_async_session_test
 
@@ -49,7 +49,7 @@ class StudentTest(IsolatedAsyncioTestCase):
         async with AsyncClient(app=app, base_url='http://localhost') as async_client:
             response = await async_client.get('/professor/id/100')
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json(), {'detail': 'Account Not Found'})
+        self.assertEqual(response.json(), {'detail': 'Professor Not Found'})
 
     @authenticated_user(app, 'admin')
     async def test_get_students(self):
