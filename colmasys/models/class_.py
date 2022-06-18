@@ -26,6 +26,10 @@ class Class(Model):
     _pcs = relationship('ProfessorClassSubject', backref=backref('class_', lazy='selectin'), lazy='selectin')
 
     @property
+    def name(self):
+        return f'{self.year}{self.major}-G{self.group}'
+
+    @property
     def professors(self):
         return [pcs.professor for pcs in self._pcs]
     

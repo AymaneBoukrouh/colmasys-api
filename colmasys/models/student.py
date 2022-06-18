@@ -22,7 +22,9 @@ class Student(Model):
 
     def serialize(self):
         data = {
-            'id': self.id
+            'id': self.id,
+            'class_id': self.class_id,
+            'class': self.class_.name if self.class_ else ''
         }
 
         data.update(self.account.serialize())
