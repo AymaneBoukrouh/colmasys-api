@@ -23,7 +23,9 @@ class Professor(Model):
 
     def serialize(self):
         data = {
-            'id': self.id
+            'id': self.id,
+            'number_of_classes': len(self.classes),
+            'number_of_subjects': len(self.subjects)
         }
 
         data.update(self.account.serialize())

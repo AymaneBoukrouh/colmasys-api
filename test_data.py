@@ -56,7 +56,7 @@ async def create_test_data():
 
         try:
             await add_test_professor(
-                username = f'T{random.randint(10000, 99999)}', firstname = firstname, lastname = lastname, email = f'{lastname.upper()}_{firstname.upper()}@emsi-edu.ma',
+                username = f'P{random.randint(10000, 99999)}', firstname = firstname, lastname = lastname, email = f'{lastname.upper()}_{firstname.upper()}@emsi-edu.ma',
                 birthdate = f'{fake.date(fake.date(pattern="%d/%m"))}/{random.randint(1999, 2004)}', gender = gender
             )
         
@@ -85,7 +85,7 @@ async def create_test_data():
 
                 try:
                     await add_test_student(
-                        username = f'T{random.randint(10000, 99999)}', firstname = firstname, lastname = lastname, email = f'{lastname.upper()}_{firstname.upper()}@emsi-edu.ma',
+                        username = f'S{random.randint(10000, 99999)}', firstname = firstname, lastname = lastname, email = f'{lastname.upper()}_{firstname.upper()}@emsi-edu.ma',
                         birthdate = f'{fake.date(fake.date(pattern="%d/%m"))}/{random.randint(1999, 2004)}', gender = gender, class_ = class_
                     )
                 
