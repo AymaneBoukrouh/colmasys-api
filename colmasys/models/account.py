@@ -52,6 +52,10 @@ class Account(Model):
     messages = relationship('Message', backref=backref('author', lazy='selectin'), lazy='selectin')
 
     @property
+    def fullname(self):
+        return f'{self.firstname} {self.lastname}'
+
+    @property
     def user(self):
         users = [self.professor, self.student]
         for user in users:

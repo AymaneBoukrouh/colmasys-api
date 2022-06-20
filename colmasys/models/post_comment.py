@@ -21,6 +21,11 @@ class UserContent(Model):
     deletion_datetime = Column(DateTime, nullable=True)
     deleted = Column(Boolean, default=False)
 
+    @property
+    def n_votes(self):
+        votes = [vote.value for vote in self.votes if not vote.deleted]
+        return 2*sum(votes) - len(votes)
+
     def update_from_model(self, model):
         data = model.dict()
         for attr in data.keys():
@@ -31,8 +36,8 @@ class UserContent(Model):
         return {
             'id': self.id,
             'content': self.content,
-            'creation_datetime': self.creation_datetime.strftime('%d/%M/%Y %H:%M:%S'),
-            'author': self.author.serialize()
+            'creation_datetime': self.creation_datetime.strftime('%d/%m/%Y %H:%M:%S'),
+            'author': self.author.fullname
         }
 
 
@@ -47,6 +52,14 @@ class Comment(UserContent):
     def from_model(model: CommentModel):
         return Comment(**model.dict())
 
+    def serialize(self):
+        data = super().serialize()
+        data.update({
+            'n_votes': self.n_votes
+        })
+
+        return data
+
 
 class Post(UserContent):
     __tablename__ = 'post'
@@ -56,6 +69,9 @@ class Post(UserContent):
     comments = relationship('Comment', backref=backref('post', lazy='selectin'), lazy='selectin')
     votes = relationship('PostVote', backref=backref('post', lazy='selectin'), lazy='selectin')
 
+    @property
+    def n_comments(self):
+        return len([comment for comment in self.comments if not comment.deleted])
 
     @staticmethod
     def from_model(model: PostModel):
@@ -63,5 +79,12 @@ class Post(UserContent):
 
     def serialize(self):
         data = super().serialize()
-        data.update({'title': self.title})
+        data.update({
+            'title': self.title,
+            'comments': [comment.serialize() for comment in self.comments if not comment.deleted],
+            'n_comments': self.n_comments,
+            'n_votes': self.n_votes,
+            'current_user_vote': None
+        })
+
         return data
