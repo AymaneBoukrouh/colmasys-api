@@ -1,5 +1,6 @@
 from colmasys.core.auth import Auth, AuthCreds
 from fastapi import FastAPI
+from fastapi_socketio import SocketManager
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
@@ -17,6 +18,11 @@ URI = f'mysql+aiomysql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}'
 ### app
 app = FastAPI()
 auth = Auth()
+socket_manager = SocketManager(
+    app = app,
+    cors_allowed_origins = ['*', '*:*', 'http://localhost:3000'],
+    mount_location = '/ws'
+)
 
 ### dependencies
 async def get_async_session():
@@ -29,3 +35,6 @@ async def get_async_session():
 
 ### endpoints
 from colmasys.endpoints import *
+
+### sockets
+from colmasys.sockets import *

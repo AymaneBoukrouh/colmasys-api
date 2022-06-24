@@ -27,7 +27,8 @@ async def get_professors(session):
     return await get_accounts_by_type(session, Professor)
 
 async def register_account_by_type(session, account_model: AccountModel, account_type: Account.Type):
-    account_model.password = str(uuid.uuid4()).split('-')[0] # random password
+    #account_model.password = str(uuid.uuid4()).split('-')[0] # random password # commented out for testing putposes
+    account_model.password = 'password'
     account = Account.from_model(account_model)
     account.account_type = account_type
     session.add(account)
@@ -41,7 +42,8 @@ async def register_account_by_type(session, account_model: AccountModel, account
     await session.commit()
 
 async def register_student(session, student_model):
-    student_model.password = str(uuid.uuid4()).split('-')[0] # random password
+    #student_model.password = str(uuid.uuid4()).split('-')[0] # random password
+    student_model.password = 'password'
     account = Account.from_model(student_model)
     account.account_type = Account.Type.Student
     session.add(account)

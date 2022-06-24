@@ -69,6 +69,11 @@ class Post(UserContent):
     comments = relationship('Comment', backref=backref('post', lazy='selectin'), lazy='selectin')
     votes = relationship('PostVote', backref=backref('post', lazy='selectin'), lazy='selectin')
 
+    def get_user_vote(self, user_id: int) -> bool:
+        for vote in self.votes:
+            if vote.account_id == user_id:
+                return not vote.value
+    
     @property
     def n_comments(self):
         return len([comment for comment in self.comments if not comment.deleted])

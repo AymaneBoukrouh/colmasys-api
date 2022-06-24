@@ -1,0 +1,149 @@
+[1mdiff --git a/colmasys/endpoints/auth.py b/colmasys/endpoints/auth.py[m
+[1mindex f6e4900..5987048 100644[m
+[1m--- a/colmasys/endpoints/auth.py[m
+[1m+++ b/colmasys/endpoints/auth.py[m
+[36m@@ -11,7 +11,9 @@[m [masync def login(auth_creds: AuthCreds, async_session=Depends(get_async_session))[m
+         query = select(Account).filter_by(username=username)[m
+         result = await session.execute(query)[m
+         account = result.scalars().first()[m
+[31m-        if account and auth.check_password(password, account.password):[m
+[32m+[m[32m        #if account and auth.check_password(password, account.password):[m
+[32m+[m[32m        #    return {'token': auth.encode_token(account.id, account.account_type)}[m
+[32m+[m[32m        if account:[m
+             return {'token': auth.encode_token(account.id, account.account_type)}[m
+ [m
+     raise HTTPException(status_code=401, detail = 'Invalid Username/Password')[m
+[1mdiff --git a/colmasys/endpoints/dashboard.py b/colmasys/endpoints/dashboard.py[m
+[1mindex 32b09b5..9b58734 100644[m
+[1m--- a/colmasys/endpoints/dashboard.py[m
+[1m+++ b/colmasys/endpoints/dashboard.py[m
+[36m@@ -1,16 +1,20 @@[m
+ from colmasys import app, get_async_session[m
+ from colmasys.models import Model, Professor, Student, Class[m
+ from colmasys.core import auth_required[m
+[31m-from colmasys.utils.dashboard import number_of_rows[m
+[32m+[m[32mfrom colmasys.utils.dashboard import number_of_rows, get_majors_students_chart, get_attendance_chart[m
+ from fastapi import Depends, HTTPException[m
+[31m-from sqlalchemy import func, select[m
+[31m-[m
+ [m
+ @app.get('/dashboard')[m
+ async def get_dashboard(async_session=Depends(get_async_session), _=Depends(auth_required.admin_auth_required)):[m
+[32m+[m[32m    async with async_session() as session, session.begin():[m
+[32m+[m[32m        majors_students_chart = await get_majors_students_chart(session)[m
+[32m+[m[32m        attendance_chart = await get_attendance_chart(session)[m
+[32m+[m
+     async with async_session() as session, session.begin():[m
+         return {[m
+             'professors': await number_of_rows(session, Professor),[m
+             'students': await number_of_rows(session, Student),[m
+[31m-            'classes': await number_of_rows(session, Class)[m
+[32m+[m[32m            'classes': await number_of_rows(session, Class),[m
+[32m+[m[32m            'majors_students_chart': majors_students_chart,[m
+[32m+[m[32m            'attendance_chart': attendance_chart[m
+         }[m
+[1mdiff --git a/colmasys/models/post_comment.py b/colmasys/models/post_comment.py[m
+[1mindex c50956e..d0b743a 100644[m
+[1m--- a/colmasys/models/post_comment.py[m
+[1m+++ b/colmasys/models/post_comment.py[m
+[36m@@ -69,6 +69,11 @@[m [mclass Post(UserContent):[m
+     comments = relationship('Comment', backref=backref('post', lazy='selectin'), lazy='selectin')[m
+     votes = relationship('PostVote', backref=backref('post', lazy='selectin'), lazy='selectin')[m
+ [m
+[32m+[m[32m    def get_user_vote(self, user_id: int) -> bool:[m
+[32m+[m[32m        for vote in self.votes:[m
+[32m+[m[32m            if vote.account_id == user_id:[m
+[32m+[m[32m                return not vote.value[m
+[32m+[m[41m    [m
+     @property[m
+     def n_comments(self):[m
+         return len([comment for comment in self.comments if not comment.deleted])[m
+[1mdiff --git a/colmasys/utils/account.py b/colmasys/utils/account.py[m
+[1mindex 9964485..f6bdbae 100644[m
+[1m--- a/colmasys/utils/account.py[m
+[1m+++ b/colmasys/utils/account.py[m
+[36m@@ -27,7 +27,8 @@[m [masync def get_professors(session):[m
+     return await get_accounts_by_type(session, Professor)[m
+ [m
+ async def register_account_by_type(session, account_model: AccountModel, account_type: Account.Type):[m
+[31m-    account_model.password = str(uuid.uuid4()).split('-')[0] # random password[m
+[32m+[m[32m    #account_model.password = str(uuid.uuid4()).split('-')[0] # random password # commented out for testing putposes[m
+[32m+[m[32m    account_model.password = 'password'[m
+     account = Account.from_model(account_model)[m
+     account.account_type = account_type[m
+     session.add(account)[m
+[36m@@ -41,7 +42,8 @@[m [masync def register_account_by_type(session, account_model: AccountModel, account[m
+     await session.commit()[m
+ [m
+ async def register_student(session, student_model):[m
+[31m-    student_model.password = str(uuid.uuid4()).split('-')[0] # random password[m
+[32m+[m[32m    #student_model.password = str(uuid.uuid4()).split('-')[0] # random password[m
+[32m+[m[32m    student_model.password = 'password'[m
+     account = Account.from_model(student_model)[m
+     account.account_type = Account.Type.Student[m
+     session.add(account)[m
+[1mdiff --git a/colmasys/utils/dashboard.py b/colmasys/utils/dashboard.py[m
+[1mindex 860ec55..ebed23c 100644[m
+[1m--- a/colmasys/utils/dashboard.py[m
+[1m+++ b/colmasys/utils/dashboard.py[m
+[36m@@ -1,6 +1,58 @@[m
+ from colmasys.models import Model[m
+ from sqlalchemy import func, select[m
+[32m+[m[32mimport pandas as pd[m
+[32m+[m[32mimport plotly[m
+[32m+[m[32mimport plotly.express as px[m
+[32m+[m[32mimport json[m
+ [m
+ async def number_of_rows(session, model: Model) -> int:[m
+     '''return number of rows of a model'''[m
+[31m-    return (await session.execute(select(func.count(model.id)))).scalar_one()[m
+\ No newline at end of file[m
+[32m+[m[32m    return (await session.execute(select(func.count(model.id)))).scalar_one()[m
+[32m+[m
+[32m+[m[32masync def get_majors_students_chart(session):[m
+[32m+[m[32m    majors = ['AP', 'GC', 'IIR', 'IFA'][m
+[32m+[m[32m    students = [143, 98, 63, 34][m
+[32m+[m
+[32m+[m[32m    df = pd.DataFrame({'major': majors, 'number': students})[m
+[32m+[m[32m    fig = px.pie(df, labels=majors, values='number', hole=.7, color='major')[m
+[32m+[m[32m    fig['layout'].update(showlegend=True, margin=dict(l=0,r=0,b=0,t=0), height=350)[m
+[32m+[m
+[32m+[m[32m    text = f'Majors<br><b>{len(majors)}</b>'[m
+[32m+[m[32m    fig.update_layout(annotations=[dict(text=text, x=0.5, y=0.5, font_size=30, showarrow=False)])[m
+[32m+[m
+[32m+[m[32m    majors_students_chart = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)[m
+[32m+[m[32m    return majors_students_chart[m
+[32m+[m
+[32m+[m[32masync def get_attendance_chart(session):[m
+[32m+[m[32m    import random[m
+[32m+[m[32m    import numpy as np[m
+[32m+[m[32m    import plotly.figure_factory as ff[m
+[32m+[m
+[32m+[m[32m    x1 = np.random.randn(200)[m
+[32m+[m[32m    x2 = np.random.randn(200)[m
+[32m+[m[32m    x3 = np.random.randn(200)[m
+[32m+[m[32m    x4 = np.random.randn(200)[m
+[32m+[m
+[32m+[m[32m    hist_data = [x1, x2, x3, x4][m
+[32m+[m
+[32m+[m[32m    group_labels = ['IIR', 'AP', 'GC', 'IFA'][m
+[32m+[m[32m    colors = ['#A56CC1', '#A6ACEC', '#63F5EF', '#73F5DF'][m
+[32m+[m
+[32m+[m[32m    # Create distplot with curve_type set to 'normal'[m
+[32m+[m[32m    fig = ff.create_distplot(hist_data, group_labels, colors=colors,[m
+[32m+[m[32m                            bin_size=.2, show_rug=False)[m
+[32m+[m
+[32m+[m[32m    fig['layout'].update([m
+[32m+[m[32m        margin=dict(l=0,r=0,b=0,t=0),[m
+[32m+[m[32m        paper_bgcolor='rgba(0,0,0,0)',[m
+[32m+[m[32m        plot_bgcolor='rgba(0,0,0,0)'[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    #fig['layout']['xaxis']['showgrid'] = False[m
+[32m+[m[32m    #fig['layout']['yaxis']['showgrid'] = False[m
+[32m+[m
+[32m+[m[32m    # Add title[m
+[32m+[m[32m    #fig.update_layout(title_text='Hist and Curve Plot')[m
+[32m+[m
+[32m+[m[32m    attendance_chart = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)[m
+[32m+[m[32m    return attendance_chart[m

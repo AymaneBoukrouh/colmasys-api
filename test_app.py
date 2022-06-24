@@ -35,7 +35,7 @@ app.dependency_overrides[auth_required.admin_auth_required] = lambda: 1
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
+    allow_origins=['*', '*:*'],
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*']
