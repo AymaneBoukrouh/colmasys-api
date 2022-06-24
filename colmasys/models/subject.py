@@ -3,6 +3,11 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship, backref
 from pydantic import BaseModel
 
+
+class SubjectModel(BaseModel):
+    name: str
+
+
 class Subject(Model):
     __tablename__ = 'subject'
     id = Column(Integer, primary_key=True)
@@ -16,6 +21,15 @@ class Subject(Model):
     @property
     def classes(self):
         return [pc.class_ for pc in self._professors_and_classes]
+
+    @staticmethod
+    def from_model(subject_model: SubjectModel):
+        return Subject(**subject_model.dict())
+
+    def update_from_model(self, subject_model: SubjectModel):
+        data = subject_model.dict()
+        for attr in data.keys():
+            setattr(self, attr, data[attr])
 
     def serialize(self):
         return {'id': self.id, 'name': self.name}
